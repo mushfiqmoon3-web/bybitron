@@ -1066,12 +1066,13 @@ router.post('/', async (_req, res) => {
               db.data?.positions.push({
                 id: positionId,
                 user_id: config.user_id,
-                exchange: config.exchange,
-                environment: config.environment,
+                exchange: config.exchange as string,
+                environment: (config.environment as 'testnet' | 'mainnet') || 'testnet',
                 symbol: pair,
                 side: signal.action === 'buy' ? 'long' : 'short',
                 size: quantity,
                 entry_price: signal.price,
+                unrealized_pnl: 0,
                 leverage,
                 is_open: true,
                 stop_loss:
@@ -1226,12 +1227,12 @@ router.post('/', async (_req, res) => {
             results.push({
               strategy: config.name,
               pair,
-              signal: (signal.action === 'none' as const) ? null : {
+              signal: signal.action === 'buy' || signal.action === 'sell' ? {
                 action: signal.action,
                 symbol: pair,
                 price: signal.price,
                 confidence: signal.confidence,
-              },
+              } : null,
               executed: false,
               reason: skipReason || 'Signal filtered',
             });
