@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import '../config/env.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import { db, safeWrite } from '../db/index.js';
 import crypto from 'node:crypto';
 
@@ -15,8 +15,8 @@ if (!jwtSecret) {
 
 const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '7d';
 
-const createAccessToken = (authUserId: string, email: string): string =>
-  jwt.sign(
+const createAccessToken = (authUserId: string, email: string): string => {
+  return jwt.sign(
     {
       sub: authUserId,
       email,
@@ -26,8 +26,9 @@ const createAccessToken = (authUserId: string, email: string): string =>
     jwtSecret,
     {
       expiresIn: jwtExpiresIn,
-    }
+    } as SignOptions
   );
+};
 
 const handleRegister = async (req: Request, res: Response) => {
   try {
