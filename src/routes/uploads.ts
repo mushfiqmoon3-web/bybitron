@@ -1,6 +1,6 @@
 import { Router, type Request } from 'express';
 import type { Request as ExpressRequest } from 'express';
-import multer, { type File } from 'multer';
+import multer from 'multer';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const router = Router();
 
 const storage = multer.diskStorage({
-  destination: async (req: ExpressRequest, _file: File, cb: (error: Error | null, destination: string) => void) => {
+  destination: async (req: ExpressRequest, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     const bucket = req.params.bucket || 'uploads';
     const requestedPath = req.body.path as string | undefined;
     
@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
     await fs.mkdir(dest, { recursive: true });
     cb(null, dest);
   },
-  filename: (req: ExpressRequest, file: File, cb: (error: Error | null, filename: string) => void) => {
+  filename: (req: ExpressRequest, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const requestedPath = req.body.path as string | undefined;
     const fallback = `${crypto.randomUUID()}-${file.originalname}`;
     
@@ -48,7 +48,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/:bucket', requireAuth, upload.single('file'), (req: Request & { file?: File }, res) => {
+router.post('/:bucket', requireAuth, upload.single('file'), (req: Request & { file?: Express.Multer.File }, res) => {
   const bucket = req.params.bucket || 'uploads';
   const filePath = req.body.path || req.file?.filename;
   if (!filePath || !req.file) {
