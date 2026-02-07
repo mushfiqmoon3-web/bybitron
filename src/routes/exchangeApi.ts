@@ -116,13 +116,10 @@ router.post('/', requireAuth, async (req: AuthenticatedRequest, res) => {
       return res.status(401).json({ code: 401, message: 'Unauthorized' });
     }
 
-    if (!req.user) {
-      return res.status(401).json({ code: 401, message: 'Unauthorized' });
-    }
-
+    const userId = req.user.id;
     const apiKeyData = db.data?.api_keys.find(
       (k) =>
-        k.user_id === req.user.id &&
+        k.user_id === userId &&
         k.exchange === exchange &&
         k.product === product &&
         k.environment === environment &&
